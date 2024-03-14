@@ -8,7 +8,7 @@ const PokemonDetails = () => {
 
     const [ pokemonDetails, setPokemonDetails ] = useState<IPokemonDetailsProps>();
     const { ID } = useParams<string>();
-    const [ API, setAPI ] = useState<string | undefined>(process.env.REACT_APP_API_KEY);
+    const [ API, setAPI ] = useState<string | undefined>(process.env.REACT_APP_BASE_URL);
 
     useEffect(() => {
         const fetchPokemonDetails = async () => {
