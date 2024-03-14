@@ -1,45 +1,67 @@
 import { Box, Card, CardContent, Typography } from "@mui/material";
 import { IPokemonDetailsProps } from "../Component/IPokemonDetails";
 import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
+const PokemonDetails = () => {
 
-const PokemonDetails = ({ pokemonDetails }: { pokemonDetails: IPokemonDetailsProps[] }) => {
-    
-    const { id } = useParams();
-    const selectedPokemon = pokemonDetails.find(pokemon => pokemon.id.toString() === id);
+    const [ pokemonDetails, setPokemonDetails ] = useState<IPokemonDetailsProps>();
+    const { ID } = useParams<string>();
+    const [ API, setAPI ] = useState<string | undefined>(process.env.REACT_APP_API_KEY);
+
+    useEffect(() => {
+        const fetchPokemonDetails = async () => {
+            try{
+                if(API){
+                    const response = await axios.get(`${API}${ID}`);
+                    const { name, id, weight, height, moves, sprites } = response.data;
+                    const sprite = sprites.front_default;
+                    const official = sprites.other['official-artwork']['front_default'];
+                    setPokemonDetails({ official, name, id, weight, height, moves, sprite });
+                }
+            }
+            catch (error){
+                console.log("Error fetching data: ", error);
+            }
+        }
+        fetchPokemonDetails();
+    }, [API]);
 
     const formatID = (num: number) => {
         return num.toString().padStart(4, '0');
     }
 
-    if (!selectedPokemon) {
-        return (
+    if(!pokemonDetails){
+        return(
             <Card>
                 <CardContent>
-                    <Typography variant="h5">Pokemon not found!</Typography>
+                    <Box display={"flex"} justifyContent={"center"} alignItems={"center"}>
+                        <Typography variant="h2">Pokemon Not Found!</Typography>
+                    </Box>
                 </CardContent>
             </Card>
-        );
+        )
     }
 
-    const formattedID = formatID(selectedPokemon.id);
+    const formattedID = formatID(pokemonDetails.id);
 
     return (
         <Box display={"flex"} justifyContent={"center"} alignItems={"center"} flexDirection={"column"}>
-            <Typography variant="h2" textTransform={"uppercase"} gutterBottom>{selectedPokemon?.name}</Typography>
+            <Typography variant="h2" textTransform={"uppercase"} gutterBottom>{pokemonDetails?.name}</Typography>
             <Box display={"flex"} gap={"50px"}>
                 <Box display={"flex"} flexDirection={"column"} gap={"50px"}>
-                    <Card sx={{width: '100%'}}><img src={selectedPokemon?.official} alt={selectedPokemon?.name}/></Card>
-                    <Card sx={{width: '100%'}}><img src={selectedPokemon?.sprite} alt={selectedPokemon?.name} width="100%"/></Card>
+                    <Card sx={{width: '100%'}}><img src={pokemonDetails?.official} alt={pokemonDetails?.name}/></Card>
+                    <Card sx={{width: '100%'}}><img src={pokemonDetails?.sprite} alt={pokemonDetails?.name} width="100%"/></Card>
                 </Box>
                 <Card sx={{width: "300px"}}>
                     <CardContent>
                         <Box display={"flex"} flexDirection={"column"} gap={"10px"}>
                             <Typography>Pokedex ID: #{formattedID}</Typography>
-                            <Typography>Height: {selectedPokemon.height}</Typography>
-                            <Typography>Weight: {selectedPokemon.weight}</Typography>
+                            <Typography>Height: {pokemonDetails.height}</Typography>
+                            <Typography>Weight: {pokemonDetails.weight}</Typography>
                             <Typography>Move:</Typography>
-                            {selectedPokemon.moves.map((move, index) => (
+                            {pokemonDetails.moves.map((move, index) => (
                                 <Card>
                                     <Typography>{move.move.name}</Typography>
                                 </Card>

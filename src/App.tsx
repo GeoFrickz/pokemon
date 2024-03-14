@@ -11,15 +11,22 @@ import axios from 'axios';
 function App() {
   const [pokemonList, setPokemonList] = useState<IPokemonProps[]>([]);
   const [ pokemonDetails, setPokemonDetails ] = useState<IPokemonDetailsProps[]>([]);
+  const [ API, setAPI ] = useState<string | undefined>(process.env.REACT_APP_API_KEY);
 
   useEffect(() => {
       const fetchData = async () => {
-          const response = await axios.get("https://pokeapi.co/api/v2/pokemon/");
-          const { results } = await response.data;
-          setPokemonList(results);
+        try {
+          if(API){
+            const response = await axios.get(API);
+            const { results } = await response.data;
+            setPokemonList(results);
+          }
+        } catch (error) {
+          console.log("Error fetching data: ", error);
+        }
       }
       fetchData();
-  }, []);
+  }, [API]);
 
   useEffect(() => {
       const fetchPokemonDetails = async () => {
@@ -34,9 +41,6 @@ function App() {
       }
       fetchPokemonDetails();
   }, [pokemonList]);
-  
-  console.log("pokemon list: ", pokemonList)
-  console.log("pokemon details: ", pokemonDetails)
 
   const router = createBrowserRouter([
     {
@@ -44,8 +48,8 @@ function App() {
       element:<PokemonList pokemonDetails={pokemonDetails}/>
     },
     {
-      path:"Details/:id",
-      element:<PokemonDetails pokemonDetails={pokemonDetails}/>
+      path:"Details/:ID",
+      element:<PokemonDetails/>
     }
   ])
 
