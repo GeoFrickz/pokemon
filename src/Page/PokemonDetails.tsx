@@ -1,36 +1,15 @@
 import { Box, Card, CardContent, Typography } from "@mui/material";
-import { IPokemonDetailsProps } from "../Component/IPokemonDetails";
+import { IPokemonDetailsProps } from "../Repository/Interface/IPokemonDetails";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { fetchOnePokemonDetails } from "../Repository/RemoteRepository";
 
 const PokemonDetails = () => {
   const [pokemonDetails, setPokemonDetails] = useState<IPokemonDetailsProps>();
   const { ID } = useParams<string>();
 
   useEffect(() => {
-    const fetchPokemonDetails = async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}${ID}`
-        );
-        const { name, id, weight, height, moves, sprites } = response.data;
-        const sprite = sprites.front_default;
-        const official = sprites.other["official-artwork"]["front_default"];
-        setPokemonDetails({
-          official,
-          name,
-          id,
-          weight,
-          height,
-          moves,
-          sprite,
-        });
-      } catch (error) {
-        console.log("Error fetching data: ", error);
-      }
-    };
-    fetchPokemonDetails();
+    fetchOnePokemonDetails(ID!).then((results) => setPokemonDetails(results));
   }, []);
 
   const formatID = (num: number) => {

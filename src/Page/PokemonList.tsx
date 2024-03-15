@@ -6,14 +6,33 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { IPokemonDetailsProps } from "../Component/IPokemonDetails";
+import { IPokemonDetailsProps } from "../Repository/Interface/IPokemonDetails";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import {
+  getPokemonDetails,
+  getPokemonList,
+} from "../Repository/RemoteRepository";
+import { IPokemonProps } from "../Repository/Interface/IPokemon";
 
-const PokemonList = ({
-  pokemonDetails,
-}: {
-  pokemonDetails: IPokemonDetailsProps[];
-}) => {
+const PokemonList = () => {
+  const [pokemonList, setPokemonList] = useState<IPokemonProps[]>([]);
+  const [pokemonDetails, setPokemonDetails] = useState<IPokemonDetailsProps[]>(
+    []
+  );
+
+  useEffect(() => {
+    getPokemonList().then((results) => setPokemonList(results));
+  }, []);
+
+  useEffect(() => {
+    pokemonList.map(async (pokemon) => {
+      getPokemonDetails(pokemon.url).then((results) =>
+        setPokemonDetails((prev) => [...prev, results!])
+      );
+    });
+  }, [pokemonList]);
+
   return (
     <Box
       display={"flex"}
