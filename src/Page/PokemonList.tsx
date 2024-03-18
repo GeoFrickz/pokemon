@@ -26,11 +26,14 @@ const PokemonList = () => {
   }, []);
 
   useEffect(() => {
-    pokemonList.map(async (pokemon) => {
-      getPokemonDetails(pokemon.url).then((results) =>
-        setPokemonDetails((prev) => [...prev, results!])
-      );
-    });
+    const getAllPokemon = async () => {
+      const detailsPromises = pokemonList.map(async (pokemon) => {
+        return await getPokemonDetails(pokemon.url);
+      });
+      const details = (await Promise.all(detailsPromises)).filter(detail => detail !== undefined) as IPokemonDetailsProps[];
+      setPokemonDetails(details);
+    };
+    getAllPokemon();
   }, [pokemonList]);
 
   return (
